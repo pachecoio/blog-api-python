@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 
+from sqlalchemy.orm import Session
+
 
 class AbstractRepository(ABC):
+    session: Session = None
 
     @abstractmethod
     def add(self, entity):

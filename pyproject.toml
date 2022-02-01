@@ -9,6 +9,7 @@ python = "^3.9"
 article = "^0.1.1"
 SQLAlchemy = "^1.4.31"
 users = "^1.0.dev0"
+abstract = "^2021.11.29"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

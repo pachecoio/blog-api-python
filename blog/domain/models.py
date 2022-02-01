@@ -35,6 +35,7 @@ class Article:
     def publish(self):
         if self.status != ArticleStatus.DRAFT:
             raise InvalidStatusException
+        print('changed status')
         self.status = ArticleStatus.PUBLISHED
 
     def delete(self):
@@ -53,6 +54,7 @@ class User:
     first_name: str
     last_name: str
     articles: [Article] = field(default_factory=set)
+    id: int = None
 
     def add_article(self, article):
         self.articles.add(article)
