@@ -1,4 +1,2 @@
-
-
 class InvalidStatusException(Exception):
     pass

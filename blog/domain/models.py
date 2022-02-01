@@ -10,10 +10,10 @@ def get_new_uuid() -> str:
 
 
 class ArticleStatus:
-    DRAFT = 'draft'
-    PUBLISHED = 'published'
-    ARCHIVED = 'archived'
-    DELETED = 'deleted'
+    DRAFT = "draft"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
+    DELETED = "deleted"
 
 
 @dataclass
