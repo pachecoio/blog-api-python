@@ -18,7 +18,7 @@ class ArticleStatus:
 
 @dataclass
 class Article:
-    name: str
+    title: str
     description: str
     content: str
     status: str = ArticleStatus.DRAFT
