@@ -13,8 +13,8 @@ def _create_user(session: Session, first_name: str, last_name: str):
 def _create_article(session, title, description, content, user_id):
     id = get_new_uuid()
     session.execute(
-        "INSERT INTO articles (id, title, description, content, user_id) VALUES "
-        f"('{id}',{title}', '{description}', '{content}', {user_id})"
+        "INSERT INTO articles (id, title, description, content, status, user_id) VALUES "
+        f"('{id}','{title}', '{description}', '{content}', 'draft', {user_id})"
     )
 
 
