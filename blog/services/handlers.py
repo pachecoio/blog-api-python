@@ -1,4 +1,6 @@
-from blog.adapters.repositories import AbstractRepository
+from dataclasses import asdict
+
+from blog.domain import commands
 from blog.domain.exceptions import (
     UserNotFoundException,
     ArticleNotFoundException,
@@ -8,25 +10,26 @@ from blog.domain.models import User, Article
 from blog.services.unit_of_work import BlogUnitOfWork
 
 
-def create_user(uow: BlogUnitOfWork, first_name: str, last_name: str):
+def create_user(cmd: commands.CreateUser, uow: BlogUnitOfWork):
     with uow:
-        user = User(first_name, last_name)
+        user = User(**asdict(cmd))
         uow.users.add(user)
         uow.commit()
         return user.id
 
 
 def add_article(
-    uow: BlogUnitOfWork, title: str, description: str, status: str, user_id: int
+    cmd: commands.AddArticle,
+    uow: BlogUnitOfWork
 ):
     with uow:
-        user = uow.users.get(user_id)
+        user = uow.users.get(cmd.user_id)
         if not user:
             raise UserNotFoundException
         article = Article(
-            title,
-            description,
-            status,
+            cmd.title,
+            cmd.description,
+            cmd.content
         )
         user.add_article(article)
         uow.session.commit()
@@ -34,15 +37,16 @@ def add_article(
 
 
 def publish_article(
-    uow: BlogUnitOfWork, article_id: str, user_id: int
+    cmd: commands.PublishArticle,
+    uow: BlogUnitOfWork
 ):
     with uow:
-        article = uow.articles.get(article_id)
+        article = uow.articles.get(cmd.article_id)
         if not article:
-            raise ArticleNotFoundException(f"Article not found with id {article_id}")
-        if article.user_id != user_id:
+            raise ArticleNotFoundException(f"Article not found with id {cmd.article_id}")
+        if article.user_id != cmd.user_id:
             raise PermissionDeniedException(
-                f"User with {user_id} not allowed to change article {article_id}"
+                f"User with {cmd.user_id} not allowed to change article {cmd.article_id}"
             )
 
         article.publish()
@@ -50,30 +54,32 @@ def publish_article(
 
 
 def delete_article(
-    uow: BlogUnitOfWork, article_id: str, user_id: int
+    cmd: commands.DeleteArticle,
+    uow: BlogUnitOfWork
 ):
     with uow:
-        article = uow.articles.get(article_id)
+        article = uow.articles.get(cmd.article_id)
         if not article:
-            raise ArticleNotFoundException(f"Article not found with id {article_id}")
-        if article.user_id != user_id:
+            raise ArticleNotFoundException(f"Article not found with id {cmd.article_id}")
+        if article.user_id != cmd.user_id:
             raise PermissionDeniedException(
-                f"User with {user_id} not allowed to change article {article_id}"
+                f"User with {cmd.user_id} not allowed to change article {cmd.article_id}"
             )
         article.delete()
         uow.session.commit()
 
 
 def archive_article(
-    uow: BlogUnitOfWork, article_id: str, user_id: int
+    cmd: commands.ArchiveArticle,
+    uow: BlogUnitOfWork,
 ):
     with uow:
-        article = uow.articles.get(article_id)
+        article = uow.articles.get(cmd.article_id)
         if not article:
-            raise ArticleNotFoundException(f"Article not found with id {article_id}")
-        if article.user_id != user_id:
+            raise ArticleNotFoundException(f"Article not found with id {cmd.article_id}")
+        if article.user_id != cmd.user_id:
             raise PermissionDeniedException(
-                f"User with {user_id} not allowed to change article {article_id}"
+                f"User with {cmd.user_id} not allowed to change article {cmd.article_id}"
             )
         article.archive()
         uow.session.commit()
