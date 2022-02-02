@@ -1,85 +1,79 @@
 from blog.adapters.repositories import AbstractRepository
-from blog.domain.exceptions import UserNotFoundException, ArticleNotFoundException, PermissionDeniedException
+from blog.domain.exceptions import (
+    UserNotFoundException,
+    ArticleNotFoundException,
+    PermissionDeniedException,
+)
 from blog.domain.models import User, Article
+from blog.services.unit_of_work import BlogUnitOfWork
 
 
-def create_user(repository: AbstractRepository, first_name: str, last_name: str):
-    user = User(first_name, last_name)
-    repository.add(user)
-    repository.session.commit()
-    return user.id
+def create_user(uow: BlogUnitOfWork, first_name: str, last_name: str):
+    with uow:
+        user = User(first_name, last_name)
+        uow.users.add(user)
+        uow.commit()
+        return user.id
 
 
 def add_article(
-    user_repository: AbstractRepository,
-    title: str,
-    description: str,
-    status: str,
-    user_id: int
+    uow: BlogUnitOfWork, title: str, description: str, status: str, user_id: int
 ):
-    user = user_repository.get(user_id)
-    if not user:
-        raise UserNotFoundException
-    article = Article(
-        title,
-        description,
-        status,
-    )
-    user.add_article(article)
-    user_repository.session.commit()
-    return article.id
+    with uow:
+        user = uow.users.get(user_id)
+        if not user:
+            raise UserNotFoundException
+        article = Article(
+            title,
+            description,
+            status,
+        )
+        user.add_article(article)
+        uow.session.commit()
+        return article.id
 
 
 def publish_article(
-    article_repository: AbstractRepository,
-    article_id: str,
-    user_id: int
+    uow: BlogUnitOfWork, article_id: str, user_id: int
 ):
-    article = article_repository.get(article_id)
-    if not article:
-        raise ArticleNotFoundException(
-            f'Article not found with id {article_id}'
-        )
-    if article.user_id != user_id:
-        raise PermissionDeniedException(
-            f'User with {user_id} not allowed to change article {article_id}'
-        )
+    with uow:
+        article = uow.articles.get(article_id)
+        if not article:
+            raise ArticleNotFoundException(f"Article not found with id {article_id}")
+        if article.user_id != user_id:
+            raise PermissionDeniedException(
+                f"User with {user_id} not allowed to change article {article_id}"
+            )
 
-    article.publish()
-    article_repository.session.commit()
+        article.publish()
+        uow.session.commit()
 
 
 def delete_article(
-    article_repository: AbstractRepository,
-    article_id: str,
-    user_id: int
+    uow: BlogUnitOfWork, article_id: str, user_id: int
 ):
-    article = article_repository.get(article_id)
-    if not article:
-        raise ArticleNotFoundException(
-            f'Article not found with id {article_id}'
-        )
-    if article.user_id != user_id:
-        raise PermissionDeniedException(
-            f'User with {user_id} not allowed to change article {article_id}'
-        )
-    article.delete()
-    article_repository.session.commit()
+    with uow:
+        article = uow.articles.get(article_id)
+        if not article:
+            raise ArticleNotFoundException(f"Article not found with id {article_id}")
+        if article.user_id != user_id:
+            raise PermissionDeniedException(
+                f"User with {user_id} not allowed to change article {article_id}"
+            )
+        article.delete()
+        uow.session.commit()
 
 
 def archive_article(
-    article_repository: AbstractRepository,
-    article_id: str,
-    user_id: int
+    uow: BlogUnitOfWork, article_id: str, user_id: int
 ):
-    article = article_repository.get(article_id)
-    if not article:
-        raise ArticleNotFoundException(
-            f'Article not found with id {article_id}'
-        )
-    if article.user_id != user_id:
-        raise PermissionDeniedException(
-            f'User with {user_id} not allowed to change article {article_id}'
-        )
-    article.archive()
-    article_repository.session.commit()
+    with uow:
+        article = uow.articles.get(article_id)
+        if not article:
+            raise ArticleNotFoundException(f"Article not found with id {article_id}")
+        if article.user_id != user_id:
+            raise PermissionDeniedException(
+                f"User with {user_id} not allowed to change article {article_id}"
+            )
+        article.archive()
+        uow.session.commit()
