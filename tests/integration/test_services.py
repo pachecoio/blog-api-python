@@ -242,6 +242,6 @@ def test_raise_not_found_when_archiving_non_existing_article(
 ):
     user_id = create_user(user_repository, "Jon", "Snow")
 
-    invalid_article_id = 12312312
+    invalid_article_id = get_new_uuid()
     with pytest.raises(ArticleNotFoundException):
         archive_article(article_repository, invalid_article_id, user_id)
