@@ -48,3 +48,38 @@ def publish_article(
     article.publish()
     article_repository.session.commit()
 
+
+def delete_article(
+    article_repository: AbstractRepository,
+    article_id: str,
+    user_id: int
+):
+    article = article_repository.get(article_id)
+    if not article:
+        raise ArticleNotFoundException(
+            f'Article not found with id {article_id}'
+        )
+    if article.user_id != user_id:
+        raise PermissionDeniedException(
+            f'User with {user_id} not allowed to change article {article_id}'
+        )
+    article.delete()
+    article_repository.session.commit()
+
+
+def archive_article(
+    article_repository: AbstractRepository,
+    article_id: str,
+    user_id: int
+):
+    article = article_repository.get(article_id)
+    if not article:
+        raise ArticleNotFoundException(
+            f'Article not found with id {article_id}'
+        )
+    if article.user_id != user_id:
+        raise PermissionDeniedException(
+            f'User with {user_id} not allowed to change article {article_id}'
+        )
+    article.archive()
+    article_repository.session.commit()

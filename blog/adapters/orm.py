@@ -20,6 +20,7 @@ articles = Table(
     Column('title', String, nullable=False),
     Column('description', String, nullable=False),
     Column('content', String, nullable=False),
+    Column('status', String, nullable=False),
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
     Column('created_at', DateTime, nullable=String),
     Column('updated_at', DateTime, nullable=String),
